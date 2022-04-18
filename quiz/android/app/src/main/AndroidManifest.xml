@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.pertemuan_empat">
+    <uses-permission android:name="android.permission.camera" />
+    <uses-permission android:name="android.permission.internet" />
    <application
         android:label="pertemuan_empat"
         android:icon="@mipmap/ic_launcher">

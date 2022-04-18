@@ -55,13 +55,38 @@ class DetailPage extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add your onPressed code here!
-        },
-        backgroundColor: Color.fromRGBO(218, 41, 28, 1),
-        child: const Icon(Icons.add_shopping_cart),
-      ),
+      floatingActionButton: SpeedDial(
+      animatedIcon: AnimatedIcons.menu_close,
+      animatedIconTheme: IconThemeData(size: 22),
+      backgroundColor: Color.fromRGBO(218, 41, 28, 1),
+      visible: true,
+      curve: Curves.bounceIn,
+      children: [
+        SpeedDialChild(
+            child: Icon(Icons.add),
+            backgroundColor: Color.fromRGBO(218, 41, 28, 1),
+            onTap: () { addPrice(price); },
+            label: 'Add to cart',
+            labelStyle: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+                fontSize: 16.0),
+            labelBackgroundColor: Color.fromRGBO(218, 41, 28, 1)),
+        // FAB 2
+        SpeedDialChild(
+            child: Icon(Icons.remove),
+            backgroundColor: Color.fromRGBO(218, 41, 28, 1),
+            onTap: () {
+              removePrice(price);
+            },
+            label: 'Minus to cart',
+            labelStyle: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+                fontSize: 16.0),
+            labelBackgroundColor: Color.fromRGBO(218, 41, 28, 1))
+      ],
+    )
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pertemuan_empat/home_page.dart';
+import 'package:pertemuan_empat/menu_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -138,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _loginProcess(BuildContext context) {
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-      return HomePage();
+      return MenuPage();
     }));
   }
 }
