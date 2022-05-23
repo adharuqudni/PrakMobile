@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pertemuan_empat/home_page.dart';
-import 'package:pertemuan_empat/camera_page.dart';
+import 'package:pertemuan_empat/view/home_page.dart';
+import 'package:pertemuan_empat/view/camera_page.dart';
+import 'package:pertemuan_empat/view/history_page.dart';
+
 
 
 class MenuPage extends StatefulWidget {
@@ -16,7 +18,7 @@ class _MenuPageState extends State<MenuPage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Login Page"),
+          title: Text("Menu Page"),
           backgroundColor: Color.fromRGBO(218, 41, 28, 1),
         ),
         body: SingleChildScrollView(
@@ -28,7 +30,8 @@ class _MenuPageState extends State<MenuPage> {
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      onPrimary: Colors.white, // foreground
+                      onPrimary: Colors.white,
+                      primary: Color.fromRGBO(218, 41, 28, 1),// foreground
                     ),
                     onPressed: () {
                       Navigator.pushReplacement(context,
@@ -40,7 +43,8 @@ class _MenuPageState extends State<MenuPage> {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      onPrimary: Colors.white, // foreground
+                      onPrimary: Colors.white,
+                      primary: Color.fromRGBO(218, 41, 28, 1),// foreground// foreground
                     ),
                     onPressed: () {
                       Navigator.pushReplacement(context,
@@ -49,6 +53,19 @@ class _MenuPageState extends State<MenuPage> {
                       }));
                     },
                     child: const Text('Scan QR '),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      onPrimary: Colors.white,
+                      primary: Color.fromRGBO(218, 41, 28, 1),// foreground// foreground
+                    ),
+                    onPressed: () {
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) {
+                            return HistoryPage();
+                          }));
+                    },
+                    child: const Text('History Page '),
                   ),
                 ],
               )

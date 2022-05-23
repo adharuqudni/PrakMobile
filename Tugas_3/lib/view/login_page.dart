@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pertemuan_empat/menu_page.dart';
+import 'package:pertemuan_empat/view/menu_page.dart';
+import 'package:pertemuan_empat/data/SharedPref.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -109,9 +110,11 @@ class _LoginPageState extends State<LoginPage> {
               : Colors.red, // background
           onPrimary: Colors.white, // foreground
         ),
-        onPressed: () {
+        onPressed: () async {
           String text = "";
           if (username == "annas" && password == "123") {
+            SharedPref().setLogin("annas");
+            SharedPref().setPromo("Tanpa Promo");
             setState(() {
               text = "Login Success";
               isLoginSuccess = true;

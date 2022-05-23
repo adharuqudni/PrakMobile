@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:pertemuan_empat/detail_page.dart';
+import 'package:pertemuan_empat/view/detail_page.dart';
+import 'package:pertemuan_empat/view/menu_page.dart';
+import 'package:pertemuan_empat/data/hive_database.dart';
+import 'package:pertemuan_empat/data/SharedPref.dart';
+import 'package:pertemuan_empat/model/Transaction.dart';
 import 'package:intl/intl.dart';
 import 'package:like_button/like_button.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:developer';
 
-import 'model/menu.dart';
 
 final formatCurrency = new NumberFormat("#,##0.00", "en_US");
-var allDataMenu = getAllMenu();
+var allDataMenu = [];
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -16,11 +22,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final Uri apiUrl = Uri.parse("https://mekidi.free.beeceptor.com/");
   String filter = "all";
-  List<Menu> dataMenu = allDataMenu;
+  List<dynamic> dataMenu = allDataMenu;
   int totalPrice = 0;
-  List<Menu> cart = [];
+  List<dynamic> cart = [];
 
+  Future<List<dynamic>> _fecthDataUsers() async {
+    var result = await http.get(apiUrl);
+    allDataMenu = json.decode(result.body);
+    return json.decode(result.body);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +43,13 @@ class _HomePageState extends State<HomePage> {
         ),
         leading: GestureDetector(
           onTap: () {
-
-            setState(() {
-              dataMenu = allDataMenu;
-            });
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) {
+              return MenuPage();
+            }));
           },
           child: Icon(
-            Icons.home,  // add custom icons also
+            Icons.home, // add custom icons also
           ),
         ),
         actions: <Widget>[
@@ -46,28 +58,28 @@ class _HomePageState extends State<HomePage> {
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    dataMenu = allDataMenu.where((i) => i.category == 'beverage').toList();
+                    dataMenu = allDataMenu
+                        .where((i) => i["category"] == 'beverage')
+                        .toList();
                   });
                 },
                 child: Icon(
                   Icons.emoji_food_beverage,
                   size: 26.0,
                 ),
-              )
-          ),
+              )),
           Padding(
               padding: EdgeInsets.only(right: 20.0),
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    dataMenu = allDataMenu.where((i) => i.category == 'food').toList();
+                    dataMenu = allDataMenu
+                        .where((i) => i["category"] == 'food')
+                        .toList();
                   });
                 },
-                child: Icon(
-                    Icons.food_bank
-                ),
-              )
-          ),
+                child: Icon(Icons.food_bank),
+              )),
         ],
         backgroundColor: Color.fromRGBO(218, 41, 28, 1),
       ),
@@ -76,8 +88,13 @@ class _HomePageState extends State<HomePage> {
         child: _createListFoodCard(),
       ),
       floatingActionButton: FloatingActionButton.large(
-        onPressed: () {
+        onPressed: () async {
           // Add your onPressed code here!
+          String promo = await SharedPref().getPromoCode();
+          String username = await SharedPref().getUsername();
+          log("${promo}, ${username}");
+          final transaction = await Transaction(promoCode: promo.isEmpty ? "Tanpa Promo" : promo, username: username, price: totalPrice);
+          HiveDatabase().addData(transaction);
         },
         backgroundColor: Color.fromRGBO(218, 41, 28, 1),
         child: Container(
@@ -89,38 +106,48 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _createListFoodCard() {
-
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.5,
-      ),
-      itemCount: dataMenu.length,
-      itemBuilder: (BuildContext context, int index) {
-        return _createCard(dataMenu[index], context);
+    return FutureBuilder<List<dynamic>>(
+      future: _fecthDataUsers(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData) {
+          return GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.5,
+            ),
+            itemCount: snapshot.data.length,
+            itemBuilder: (BuildContext context, int index) {
+              return _createCard(snapshot.data[index], context);
+            },
+          );
+        } else {
+          return Center(child: CircularProgressIndicator());
+        }
       },
     );
   }
 
-  Widget _createCard(Menu data, BuildContext context) {
-    void AddPrice(int price){
+  Widget _createCard(dynamic data, BuildContext context) {
+    void AddPrice(int price) {
       setState(() {
         totalPrice += price;
       });
     }
-    void removePrice(int price){
+
+    void removePrice(int price) {
       setState(() {
-        totalPrice = totalPrice - price < 0 ? 0 : totalPrice-price;
+        totalPrice = totalPrice - price < 0 ? 0 : totalPrice - price;
       });
     }
+
     return Card(
       child: InkWell(
         onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return DetailPage(
-              image: data.image,
-              name: data.name,
-              price: data.price,
+              image: data["image"],
+              name: data["name"],
+              price: data["price"],
               addPrice: AddPrice,
               removePrice: removePrice,
             );
@@ -133,7 +160,7 @@ class _HomePageState extends State<HomePage> {
                   child: Container(
                 padding: const EdgeInsets.all(10),
                 child: Image.network(
-                  data.image,
+                  data["image"],
                   width: 300,
                 ),
               )),
@@ -143,14 +170,14 @@ class _HomePageState extends State<HomePage> {
                       child: Column(
                         children: [
                           Text(
-                            data.name,
+                            data["name"],
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           Text(
-                            data.desc,
+                            data["desc"],
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 12,
@@ -158,7 +185,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           SizedBox(height: 10),
                           Text(
-                            "Rp ${formatCurrency.format(data.price)}",
+                            "Rp ${formatCurrency.format(data["price"])}",
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -167,7 +194,6 @@ class _HomePageState extends State<HomePage> {
                           LikeButton(),
                         ],
                       ))),
-
             ],
           ),
         ),

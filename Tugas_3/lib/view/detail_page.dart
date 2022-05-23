@@ -3,7 +3,6 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
-import 'model/menu.dart';
 final formatCurrency = new NumberFormat("#,##0.00", "en_US");
 
 class DetailPage extends StatelessWidget {
