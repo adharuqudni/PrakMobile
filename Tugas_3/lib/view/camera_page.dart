@@ -35,22 +35,24 @@ class _ScanQRPageState extends State<ScanQRPage> {
     }
   }
 
-  void readQr() async {
+  void readQr(BuildContext context) async {
     if (result != null) {
       controller!.pauseCamera();
       SharedPref().setPromo(result!.code ?? 'Promo Code Salah');
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) {
-            return HomePage();
-          }));
+
       print(result!.code);
       controller!.dispose();
+      Future.delayed(Duration.zero, () {
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+          return HomePage();
+        }));
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    readQr();
+    readQr(context);
     return Scaffold(
       body: QRView(
         key: qrKey,
@@ -71,6 +73,4 @@ class _ScanQRPageState extends State<ScanQRPage> {
     controller?.dispose();
     super.dispose();
   }
-
-
 }
